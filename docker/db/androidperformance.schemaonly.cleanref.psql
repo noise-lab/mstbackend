@@ -1,0 +1,2413 @@
+--
+-- PostgreSQL database dump
+--
+
+SET statement_timeout = 0;
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = on;
+SET check_function_bodies = false;
+SET client_min_messages = warning;
+
+--
+-- Name: plpgsql; Type: EXTENSION; Schema: -; Owner: 
+--
+
+CREATE EXTENSION IF NOT EXISTS plpgsql WITH SCHEMA pg_catalog;
+
+
+--
+-- Name: EXTENSION plpgsql; Type: COMMENT; Schema: -; Owner: 
+--
+
+COMMENT ON EXTENSION plpgsql IS 'PL/pgSQL procedural language';
+
+
+SET search_path = public, pg_catalog;
+
+--
+--
+
+CREATE DOMAIN eventstamp_t AS timestamp without time zone;
+
+
+
+--
+--
+
+CREATE DOMAIN inetn_t AS inet;
+
+
+
+SET default_tablespace = '';
+
+SET default_with_oids = false;
+
+--
+--
+
+CREATE TABLE application (
+    name character varying(20),
+    package character varying(50) NOT NULL
+);
+
+
+
+--
+--
+
+CREATE TABLE measurement (
+    measurementid integer NOT NULL,
+    "time" timestamp without time zone,
+    "localtime" timestamp without time zone,
+    deviceid character varying(40),
+    ismanual boolean,
+    applicationversion integer
+);
+
+
+
+--
+--
+
+CREATE SEQUENCE measurement_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    MAXVALUE 2147483648
+    CACHE 1;
+
+
+
+--
+--
+
+ALTER SEQUENCE measurement_seq OWNED BY measurement.measurementid;
+
+
+--
+--
+
+CREATE TABLE application_use (
+    application_useid integer NOT NULL,
+    package character varying(50),
+    total_sent bigint,
+    total_recv bigint,
+    isrunning boolean,
+    measurementid integer DEFAULT nextval('measurement_seq'::regclass),
+    total_diff bigint,
+    isforeground boolean
+);
+
+
+
+--
+--
+
+CREATE SEQUENCE application_use_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    MAXVALUE 2147483648
+    CACHE 1;
+
+
+
+--
+--
+
+ALTER SEQUENCE application_use_seq OWNED BY application_use.application_useid;
+
+
+--
+--
+
+CREATE TABLE auth_group (
+    id integer NOT NULL,
+    name character varying(80) NOT NULL
+);
+
+
+
+--
+--
+
+CREATE SEQUENCE auth_group_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+
+--
+--
+
+ALTER SEQUENCE auth_group_id_seq OWNED BY auth_group.id;
+
+
+--
+--
+
+CREATE TABLE auth_group_permissions (
+    id integer NOT NULL,
+    group_id integer NOT NULL,
+    permission_id integer NOT NULL
+);
+
+
+
+--
+--
+
+CREATE SEQUENCE auth_group_permissions_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+
+--
+--
+
+ALTER SEQUENCE auth_group_permissions_id_seq OWNED BY auth_group_permissions.id;
+
+
+--
+--
+
+CREATE TABLE auth_message (
+    id integer NOT NULL,
+    user_id integer NOT NULL,
+    message text NOT NULL
+);
+
+
+
+--
+--
+
+CREATE SEQUENCE auth_message_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+
+--
+--
+
+ALTER SEQUENCE auth_message_id_seq OWNED BY auth_message.id;
+
+
+--
+--
+
+CREATE TABLE auth_permission (
+    id integer NOT NULL,
+    name character varying(50) NOT NULL,
+    content_type_id integer NOT NULL,
+    codename character varying(100) NOT NULL
+);
+
+
+
+--
+--
+
+CREATE SEQUENCE auth_permission_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+
+--
+--
+
+ALTER SEQUENCE auth_permission_id_seq OWNED BY auth_permission.id;
+
+
+--
+--
+
+CREATE TABLE auth_user (
+    id integer NOT NULL,
+    username character varying(30) NOT NULL,
+    first_name character varying(30) NOT NULL,
+    last_name character varying(30) NOT NULL,
+    email character varying(75) NOT NULL,
+    password character varying(128) NOT NULL,
+    is_staff boolean NOT NULL,
+    is_active boolean NOT NULL,
+    is_superuser boolean NOT NULL,
+    last_login timestamp with time zone NOT NULL,
+    date_joined timestamp with time zone NOT NULL
+);
+
+
+
+--
+--
+
+CREATE TABLE auth_user_groups (
+    id integer NOT NULL,
+    user_id integer NOT NULL,
+    group_id integer NOT NULL
+);
+
+
+
+--
+--
+
+CREATE SEQUENCE auth_user_groups_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+
+--
+--
+
+ALTER SEQUENCE auth_user_groups_id_seq OWNED BY auth_user_groups.id;
+
+
+--
+--
+
+CREATE SEQUENCE auth_user_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+
+--
+--
+
+ALTER SEQUENCE auth_user_id_seq OWNED BY auth_user.id;
+
+
+--
+--
+
+CREATE TABLE auth_user_user_permissions (
+    id integer NOT NULL,
+    user_id integer NOT NULL,
+    permission_id integer NOT NULL
+);
+
+
+
+--
+--
+
+CREATE SEQUENCE auth_user_user_permissions_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+
+--
+--
+
+ALTER SEQUENCE auth_user_user_permissions_id_seq OWNED BY auth_user_user_permissions.id;
+
+
+--
+--
+
+CREATE TABLE battery (
+    measurementid integer NOT NULL,
+    technology character varying(20),
+    ispresent integer,
+    plugged integer,
+    scale integer,
+    health integer,
+    voltage integer,
+    level integer,
+    temperature integer,
+    status integer
+);
+
+
+
+--
+--
+
+CREATE TABLE calculate_log (
+    log_time timestamp without time zone NOT NULL,
+    "time" timestamp without time zone
+);
+
+
+
+--
+--
+
+CREATE TABLE cell (
+    cellid character varying(20) NOT NULL,
+    celltype character varying(10) NOT NULL,
+    celllac character varying(20) NOT NULL,
+    longitude double precision NOT NULL,
+    latitude double precision NOT NULL,
+    systemid integer NOT NULL,
+    networkid integer NOT NULL
+);
+
+
+
+--
+--
+
+CREATE TABLE client_log (
+    log_time timestamp without time zone NOT NULL,
+    deviceid character varying(40),
+    error_text text,
+    tag text,
+    value integer
+);
+
+
+
+--
+--
+
+CREATE TABLE device (
+    deviceid character varying(40) NOT NULL,
+    phonetype character varying(20),
+    phonenumber character varying(40),
+    softwareversion character varying(20),
+    phonemodel character varying(20),
+    androidversion character varying(20),
+    phonebrand character varying(20),
+    devicedesign character varying(20),
+    manufacturer character varying(20),
+    productname character varying(20),
+    radioversion character varying(20),
+    boardname character varying(20),
+    serialnumber character varying(40),
+    networkcountry character varying(2),
+    networkname character varying(25),
+    datacap integer,
+    billingcycle integer,
+    emailaddress character varying(40),
+    applicationversion integer
+);
+
+
+
+--
+--
+
+CREATE TABLE device_sim_join (
+    deviceid character varying(40),
+    phonetype character varying(20),
+    phonenumber character varying(40),
+    softwareversion character varying(20),
+    phonemodel character varying(20),
+    androidversion character varying(20),
+    phonebrand character varying(20),
+    devicedesign character varying(20),
+    manufacturer character varying(20),
+    productname character varying(20),
+    radioversion character varying(20),
+    boardname character varying(20),
+    serialnumber character varying(40),
+    datacap integer,
+    billingcycle integer,
+    emailaddress character varying(40),
+    applicationversion integer,
+    networkname character varying(25),
+    networkcountry_dev character varying(2),
+    networkcountry character varying(5),
+    state character varying(20),
+    operatorcode character varying(8),
+    operatorname character varying(20)
+);
+
+
+
+--
+--
+
+CREATE TABLE django_admin_log (
+    id integer NOT NULL,
+    action_time timestamp with time zone NOT NULL,
+    user_id integer NOT NULL,
+    content_type_id integer,
+    object_id text,
+    object_repr character varying(200) NOT NULL,
+    action_flag smallint NOT NULL,
+    change_message text NOT NULL,
+    CONSTRAINT django_admin_log_action_flag_check CHECK ((action_flag >= 0))
+);
+
+
+
+--
+--
+
+CREATE SEQUENCE django_admin_log_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+
+--
+--
+
+ALTER SEQUENCE django_admin_log_id_seq OWNED BY django_admin_log.id;
+
+
+--
+--
+
+CREATE TABLE django_content_type (
+    id integer NOT NULL,
+    name character varying(100) NOT NULL,
+    app_label character varying(100) NOT NULL,
+    model character varying(100) NOT NULL
+);
+
+
+
+--
+--
+
+CREATE SEQUENCE django_content_type_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+
+--
+--
+
+ALTER SEQUENCE django_content_type_id_seq OWNED BY django_content_type.id;
+
+
+--
+--
+
+CREATE TABLE django_session (
+    session_key character varying(40) NOT NULL,
+    session_data text NOT NULL,
+    expire_date timestamp with time zone NOT NULL
+);
+
+
+
+--
+--
+
+CREATE TABLE django_site (
+    id integer NOT NULL,
+    domain character varying(100) NOT NULL,
+    name character varying(50) NOT NULL
+);
+
+
+
+--
+--
+
+CREATE SEQUENCE django_site_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+
+--
+--
+
+ALTER SEQUENCE django_site_id_seq OWNED BY django_site.id;
+
+
+--
+--
+
+CREATE TABLE error_log (
+    log_time timestamp without time zone NOT NULL,
+    deviceid character varying(40),
+    error_text text,
+    user_agent text,
+    remote_addr character varying(20)
+);
+
+
+
+--
+--
+
+CREATE TABLE gps (
+    measurementid integer NOT NULL,
+    latitude double precision,
+    longitude double precision,
+    altitude double precision
+);
+
+
+
+--
+--
+
+CREATE TABLE traceroute (
+    tracerouteid integer NOT NULL,
+    hostname character varying(100),
+    srcip character varying(50),
+    dstip character varying(50),
+    tracetype character varying(5),
+    measurementid integer DEFAULT nextval('measurement_seq'::regclass)
+);
+
+
+
+--
+--
+
+CREATE SEQUENCE traceroute_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    MAXVALUE 2147483648
+    CACHE 1;
+
+
+
+--
+--
+
+ALTER SEQUENCE traceroute_seq OWNED BY traceroute.tracerouteid;
+
+
+--
+--
+
+CREATE TABLE hop (
+    hopid integer NOT NULL,
+    address character varying(50),
+    hostname character varying(100),
+    hopnumber integer,
+    rtt double precision,
+    tracerouteid integer DEFAULT nextval('traceroute_seq'::regclass)
+);
+
+
+
+--
+--
+
+CREATE SEQUENCE hop_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    MAXVALUE 2147483648
+    CACHE 1;
+
+
+
+--
+--
+
+ALTER SEQUENCE hop_seq OWNED BY hop.hopid;
+
+
+--
+--
+
+CREATE TABLE ipdv (
+    sequencenumber integer NOT NULL,
+    ipdv integer NOT NULL,
+    measurementid integer NOT NULL,
+    ipdvid integer NOT NULL
+);
+
+
+
+--
+--
+
+CREATE SEQUENCE ipdv_ipdvid_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+
+--
+--
+
+ALTER SEQUENCE ipdv_ipdvid_seq OWNED BY ipdv.ipdvid;
+
+
+--
+--
+
+CREATE TABLE kill_list (
+    deviceid character varying(40) NOT NULL
+);
+
+
+
+--
+--
+
+CREATE SEQUENCE lastmile_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    MAXVALUE 2147483648
+    CACHE 1;
+
+
+
+--
+--
+
+CREATE TABLE lastmile (
+    avg double precision,
+    stdev double precision,
+    min double precision,
+    max double precision,
+    scrip character varying(50),
+    dstip character varying(50),
+    "time" timestamp without time zone,
+    firstip character varying(50),
+    hopcount integer,
+    measurementid integer DEFAULT nextval('measurement_seq'::regclass),
+    lastmileid integer DEFAULT nextval('lastmile_seq'::regclass)
+);
+
+
+
+--
+--
+
+CREATE TABLE link (
+    linkid integer NOT NULL,
+    count integer,
+    message_size bigint,
+    duration integer,
+    speed double precision,
+    port integer,
+    ip_address character varying(50)
+);
+
+
+
+--
+--
+
+CREATE SEQUENCE link_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    MAXVALUE 2147483648
+    CACHE 1;
+
+
+
+--
+--
+
+ALTER SEQUENCE link_seq OWNED BY link.linkid;
+
+
+--
+--
+
+CREATE TABLE loss (
+    total integer NOT NULL,
+    lost integer NOT NULL,
+    losspercentage double precision NOT NULL,
+    measurementid integer NOT NULL,
+    lossid integer NOT NULL
+);
+
+
+
+--
+--
+
+CREATE SEQUENCE loss_lossid_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+
+--
+--
+
+ALTER SEQUENCE loss_lossid_seq OWNED BY loss.lossid;
+
+
+--
+--
+
+CREATE TABLE measurement_country_time (
+    "time" timestamp without time zone,
+    deviceid character varying(40),
+    measurementid integer,
+    networkcountry character varying(5),
+    networkname character varying(25),
+    manufacturer character varying(20),
+    phonemodel character varying(20),
+    androidversion character varying(20),
+    datacap integer
+);
+
+
+
+--
+--
+
+CREATE TABLE measurement_country_time_network (
+    "time" timestamp without time zone,
+    deviceid character varying(40),
+    measurementid integer,
+    networkcountry character varying(5),
+    networkname character varying(25),
+    manufacturer character varying(20),
+    phonemodel character varying(20),
+    androidversion character varying(20),
+    datacap integer,
+    networktype character varying(10),
+    connectiontype character varying(10),
+    signalstrength character varying(20),
+    celltype character varying(10),
+    longitude double precision,
+    latitude double precision
+);
+
+
+
+--
+--
+
+CREATE TABLE measurement_oct14dec14 (
+    measurementid integer,
+    "time" timestamp without time zone,
+    "localtime" timestamp without time zone,
+    deviceid character varying(40),
+    ismanual boolean
+);
+
+
+
+--
+--
+
+CREATE TABLE network (
+    measurementid integer NOT NULL,
+    networktype character varying(10),
+    connectiontype character varying(10),
+    wifistate character varying(20),
+    datastate character varying(30),
+    dataactivity character varying(30),
+    signalstrength character varying(20),
+    cellid character varying(20),
+    celltype character varying(10),
+    celllac character varying(20),
+    longitude double precision,
+    latitude double precision,
+    systemid integer,
+    networkid integer
+);
+
+
+
+--
+--
+
+CREATE SEQUENCE ping_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    MAXVALUE 2147483648
+    CACHE 1;
+
+
+
+--
+--
+
+CREATE TABLE ping (
+    avg double precision,
+    stdev double precision,
+    min double precision,
+    max double precision,
+    scrip character varying(50),
+    dstip character varying(50),
+    "time" timestamp without time zone,
+    measurementid integer DEFAULT nextval('measurement_seq'::regclass),
+    pingid integer DEFAULT nextval('ping_seq'::regclass) NOT NULL
+);
+
+
+
+--
+--
+
+CREATE TABLE ping_servers (
+    ipaddress character varying(50) NOT NULL,
+    tag character varying(20)
+);
+
+
+
+--
+--
+
+CREATE TABLE screen (
+    screenid integer NOT NULL,
+    deviceid character varying(40),
+    "time" timestamp without time zone,
+    "localtime" timestamp without time zone,
+    turnedon boolean
+);
+
+
+
+--
+--
+
+CREATE SEQUENCE screen_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    MAXVALUE 2147483648
+    CACHE 1;
+
+
+
+--
+--
+
+ALTER SEQUENCE screen_seq OWNED BY screen.screenid;
+
+
+--
+--
+
+CREATE TABLE sim (
+    serialnumber character varying(40) NOT NULL,
+    state character varying(20),
+    operatorcode character varying(8),
+    operatorname character varying(20),
+    networkcountry character varying(5)
+);
+
+
+
+--
+--
+
+CREATE TABLE south_migrationhistory (
+    id integer NOT NULL,
+    app_name character varying(255) NOT NULL,
+    migration character varying(255) NOT NULL,
+    applied timestamp with time zone NOT NULL
+);
+
+
+
+--
+--
+
+CREATE SEQUENCE south_migrationhistory_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+
+--
+--
+
+ALTER SEQUENCE south_migrationhistory_id_seq OWNED BY south_migrationhistory.id;
+
+
+--
+--
+
+CREATE TABLE state (
+    measurementid integer NOT NULL,
+    cellid character varying(20),
+    networktype character varying(20),
+    deviceid character varying(40),
+    weekday integer,
+    timeslice integer
+);
+
+
+
+--
+--
+
+CREATE TABLE throughput (
+    measurementid integer NOT NULL,
+    uplinkid integer DEFAULT nextval('link_seq'::regclass),
+    downlinkid integer DEFAULT nextval('link_seq'::regclass)
+);
+
+
+
+--
+--
+
+CREATE TABLE usage (
+    measurementid integer NOT NULL,
+    total_sent bigint,
+    total_recv bigint,
+    total_till_now bigint,
+    mobile_sent bigint,
+    mobile_recv bigint,
+    mobile_till_now bigint
+);
+
+
+
+--
+--
+
+CREATE TABLE "values" (
+    valueid integer NOT NULL,
+    frequency_secs integer,
+    throughput_freq integer,
+    uplink_port integer,
+    uplink_duration integer,
+    downlink_port integer,
+    downlink_duration integer,
+    tcp_headersize integer,
+    tcp_packetsize integer,
+    throughput_server_address text,
+    api_server_address text,
+    signalstrength_timeout integer,
+    wifi_timeout integer,
+    unavailable_cellid character varying(10),
+    unavailable_celllac character varying(10),
+    threadpool_max_size integer,
+    threadpool_keepalive_sec integer
+);
+
+
+
+--
+--
+
+CREATE SEQUENCE values_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    MAXVALUE 2147483648
+    CACHE 1;
+
+
+
+--
+--
+
+ALTER SEQUENCE values_seq OWNED BY "values".valueid;
+
+
+--
+--
+
+CREATE TABLE warmup_experiment (
+    lowest double precision,
+    highest double precision,
+    version character varying(10),
+    dstip character varying(50),
+    total_count integer,
+    gap double precision,
+    measurementid integer DEFAULT nextval('measurement_seq'::regclass)
+);
+
+
+
+--
+--
+
+CREATE TABLE warmup_ping (
+    value double precision,
+    sequence_count integer,
+    period double precision,
+    warmupid integer,
+    measurementid integer DEFAULT nextval('measurement_seq'::regclass)
+);
+
+
+
+--
+--
+
+CREATE SEQUENCE warmup_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    MAXVALUE 2147483648
+    CACHE 1;
+
+
+
+--
+--
+
+ALTER SEQUENCE warmup_seq OWNED BY warmup_ping.warmupid;
+
+
+--
+--
+
+CREATE TABLE wifi (
+    measurementid integer NOT NULL,
+    ipaddress character varying(50),
+    detailedinfo character varying(40),
+    rssi integer,
+    signalstrength integer,
+    speed integer,
+    units character varying(10),
+    connection character varying(40)
+);
+
+
+
+--
+--
+
+CREATE TABLE wifi_hotspot (
+    macaddress character varying(40) NOT NULL,
+    ssid character varying(40),
+    frequency integer,
+    capability character varying(20)
+);
+
+
+
+--
+--
+
+CREATE TABLE wifi_neighbor (
+    wifi_neighbor_id integer NOT NULL,
+    macaddress character varying(40),
+    ispreferred integer,
+    signallevel integer,
+    measurementid integer DEFAULT nextval('measurement_seq'::regclass)
+);
+
+
+
+--
+--
+
+CREATE SEQUENCE wifi_neighbor_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    MAXVALUE 2147483648
+    CACHE 1;
+
+
+
+--
+--
+
+ALTER SEQUENCE wifi_neighbor_seq OWNED BY wifi_neighbor.wifi_neighbor_id;
+
+
+--
+--
+
+CREATE TABLE za (
+    deviceid character varying(40),
+    phonetype character varying(20),
+    phonenumber character varying(40),
+    softwareversion character varying(20),
+    phonemodel character varying(20),
+    androidversion character varying(20),
+    phonebrand character varying(20),
+    devicedesign character varying(20),
+    manufacturer character varying(20),
+    productname character varying(20),
+    radioversion character varying(20),
+    boardname character varying(20),
+    serialnumber character varying(40),
+    networkcountry character varying(2),
+    networkname character varying(25),
+    datacap integer,
+    billingcycle integer,
+    emailaddress character varying(40),
+    applicationversion integer
+);
+
+
+
+--
+--
+
+CREATE TABLE za1 (
+    deviceid character varying(40),
+    phonetype character varying(20),
+    phonenumber character varying(40),
+    softwareversion character varying(20),
+    phonemodel character varying(20),
+    androidversion character varying(20),
+    phonebrand character varying(20),
+    devicedesign character varying(20),
+    manufacturer character varying(20),
+    productname character varying(20),
+    radioversion character varying(20),
+    boardname character varying(20),
+    serialnumber character varying(40),
+    networkcountry character varying(2),
+    networkname character varying(25),
+    datacap integer,
+    billingcycle integer,
+    emailaddress character varying(40),
+    applicationversion integer
+);
+
+
+
+--
+--
+
+ALTER TABLE ONLY application_use ALTER COLUMN application_useid SET DEFAULT nextval('application_use_seq'::regclass);
+
+
+--
+--
+
+ALTER TABLE ONLY auth_group ALTER COLUMN id SET DEFAULT nextval('auth_group_id_seq'::regclass);
+
+
+--
+--
+
+ALTER TABLE ONLY auth_group_permissions ALTER COLUMN id SET DEFAULT nextval('auth_group_permissions_id_seq'::regclass);
+
+
+--
+--
+
+ALTER TABLE ONLY auth_message ALTER COLUMN id SET DEFAULT nextval('auth_message_id_seq'::regclass);
+
+
+--
+--
+
+ALTER TABLE ONLY auth_permission ALTER COLUMN id SET DEFAULT nextval('auth_permission_id_seq'::regclass);
+
+
+--
+--
+
+ALTER TABLE ONLY auth_user ALTER COLUMN id SET DEFAULT nextval('auth_user_id_seq'::regclass);
+
+
+--
+--
+
+ALTER TABLE ONLY auth_user_groups ALTER COLUMN id SET DEFAULT nextval('auth_user_groups_id_seq'::regclass);
+
+
+--
+--
+
+ALTER TABLE ONLY auth_user_user_permissions ALTER COLUMN id SET DEFAULT nextval('auth_user_user_permissions_id_seq'::regclass);
+
+
+--
+--
+
+ALTER TABLE ONLY django_admin_log ALTER COLUMN id SET DEFAULT nextval('django_admin_log_id_seq'::regclass);
+
+
+--
+--
+
+ALTER TABLE ONLY django_content_type ALTER COLUMN id SET DEFAULT nextval('django_content_type_id_seq'::regclass);
+
+
+--
+--
+
+ALTER TABLE ONLY django_site ALTER COLUMN id SET DEFAULT nextval('django_site_id_seq'::regclass);
+
+
+--
+--
+
+ALTER TABLE ONLY hop ALTER COLUMN hopid SET DEFAULT nextval('hop_seq'::regclass);
+
+
+--
+--
+
+ALTER TABLE ONLY ipdv ALTER COLUMN ipdvid SET DEFAULT nextval('ipdv_ipdvid_seq'::regclass);
+
+
+--
+--
+
+ALTER TABLE ONLY link ALTER COLUMN linkid SET DEFAULT nextval('link_seq'::regclass);
+
+
+--
+--
+
+ALTER TABLE ONLY loss ALTER COLUMN lossid SET DEFAULT nextval('loss_lossid_seq'::regclass);
+
+
+--
+--
+
+ALTER TABLE ONLY measurement ALTER COLUMN measurementid SET DEFAULT nextval('measurement_seq'::regclass);
+
+
+--
+--
+
+ALTER TABLE ONLY screen ALTER COLUMN screenid SET DEFAULT nextval('screen_seq'::regclass);
+
+
+--
+--
+
+ALTER TABLE ONLY south_migrationhistory ALTER COLUMN id SET DEFAULT nextval('south_migrationhistory_id_seq'::regclass);
+
+
+--
+--
+
+ALTER TABLE ONLY traceroute ALTER COLUMN tracerouteid SET DEFAULT nextval('traceroute_seq'::regclass);
+
+
+--
+--
+
+ALTER TABLE ONLY "values" ALTER COLUMN valueid SET DEFAULT nextval('values_seq'::regclass);
+
+
+--
+--
+
+ALTER TABLE ONLY warmup_ping ALTER COLUMN warmupid SET DEFAULT nextval('warmup_seq'::regclass);
+
+
+--
+--
+
+ALTER TABLE ONLY wifi_neighbor ALTER COLUMN wifi_neighbor_id SET DEFAULT nextval('wifi_neighbor_seq'::regclass);
+
+
+--
+--
+
+ALTER TABLE ONLY application_use
+    ADD CONSTRAINT application_use_pkey PRIMARY KEY (application_useid);
+
+
+--
+--
+
+ALTER TABLE ONLY auth_group
+    ADD CONSTRAINT auth_group_name_key UNIQUE (name);
+
+
+--
+--
+
+ALTER TABLE ONLY auth_group_permissions
+    ADD CONSTRAINT auth_group_permissions_group_id_key UNIQUE (group_id, permission_id);
+
+
+--
+--
+
+ALTER TABLE ONLY auth_group_permissions
+    ADD CONSTRAINT auth_group_permissions_pkey PRIMARY KEY (id);
+
+
+--
+--
+
+ALTER TABLE ONLY auth_group
+    ADD CONSTRAINT auth_group_pkey PRIMARY KEY (id);
+
+
+--
+--
+
+ALTER TABLE ONLY auth_message
+    ADD CONSTRAINT auth_message_pkey PRIMARY KEY (id);
+
+
+--
+--
+
+ALTER TABLE ONLY auth_permission
+    ADD CONSTRAINT auth_permission_content_type_id_key UNIQUE (content_type_id, codename);
+
+
+--
+--
+
+ALTER TABLE ONLY auth_permission
+    ADD CONSTRAINT auth_permission_pkey PRIMARY KEY (id);
+
+
+--
+--
+
+ALTER TABLE ONLY auth_user_groups
+    ADD CONSTRAINT auth_user_groups_pkey PRIMARY KEY (id);
+
+
+--
+--
+
+ALTER TABLE ONLY auth_user_groups
+    ADD CONSTRAINT auth_user_groups_user_id_key UNIQUE (user_id, group_id);
+
+
+--
+--
+
+ALTER TABLE ONLY auth_user
+    ADD CONSTRAINT auth_user_pkey PRIMARY KEY (id);
+
+
+--
+--
+
+ALTER TABLE ONLY auth_user_user_permissions
+    ADD CONSTRAINT auth_user_user_permissions_pkey PRIMARY KEY (id);
+
+
+--
+--
+
+ALTER TABLE ONLY auth_user_user_permissions
+    ADD CONSTRAINT auth_user_user_permissions_user_id_key UNIQUE (user_id, permission_id);
+
+
+--
+--
+
+ALTER TABLE ONLY auth_user
+    ADD CONSTRAINT auth_user_username_key UNIQUE (username);
+
+
+--
+--
+
+ALTER TABLE ONLY battery
+    ADD CONSTRAINT battery_measurement_pkey PRIMARY KEY (measurementid);
+
+
+--
+--
+
+ALTER TABLE ONLY calculate_log
+    ADD CONSTRAINT calculate_log_pkey PRIMARY KEY (log_time);
+
+
+--
+--
+
+ALTER TABLE ONLY cell
+    ADD CONSTRAINT cell_pkey PRIMARY KEY (cellid);
+
+
+--
+--
+
+ALTER TABLE ONLY client_log
+    ADD CONSTRAINT client_log_pkey PRIMARY KEY (log_time);
+
+
+--
+--
+
+ALTER TABLE ONLY device
+    ADD CONSTRAINT device_pkey PRIMARY KEY (deviceid);
+
+
+--
+--
+
+ALTER TABLE ONLY django_admin_log
+    ADD CONSTRAINT django_admin_log_pkey PRIMARY KEY (id);
+
+
+--
+--
+
+ALTER TABLE ONLY django_content_type
+    ADD CONSTRAINT django_content_type_app_label_key UNIQUE (app_label, model);
+
+
+--
+--
+
+ALTER TABLE ONLY django_content_type
+    ADD CONSTRAINT django_content_type_pkey PRIMARY KEY (id);
+
+
+--
+--
+
+ALTER TABLE ONLY django_session
+    ADD CONSTRAINT django_session_pkey PRIMARY KEY (session_key);
+
+
+--
+--
+
+ALTER TABLE ONLY django_site
+    ADD CONSTRAINT django_site_pkey PRIMARY KEY (id);
+
+
+--
+--
+
+ALTER TABLE ONLY error_log
+    ADD CONSTRAINT error_log_pkey PRIMARY KEY (log_time);
+
+
+--
+--
+
+ALTER TABLE ONLY gps
+    ADD CONSTRAINT gps_measurement_pkey PRIMARY KEY (measurementid);
+
+
+--
+--
+
+ALTER TABLE ONLY hop
+    ADD CONSTRAINT hop_pkey PRIMARY KEY (hopid);
+
+
+--
+--
+
+ALTER TABLE ONLY ipdv
+    ADD CONSTRAINT ipdv_pkey PRIMARY KEY (ipdvid);
+
+
+--
+--
+
+ALTER TABLE ONLY kill_list
+    ADD CONSTRAINT kill_deviceid_pkey PRIMARY KEY (deviceid);
+
+
+--
+--
+
+ALTER TABLE ONLY link
+    ADD CONSTRAINT link_pkey PRIMARY KEY (linkid);
+
+
+--
+--
+
+ALTER TABLE ONLY loss
+    ADD CONSTRAINT loss_pkey PRIMARY KEY (lossid);
+
+
+--
+--
+
+ALTER TABLE ONLY measurement
+    ADD CONSTRAINT measurement_pkey PRIMARY KEY (measurementid);
+
+
+--
+--
+
+ALTER TABLE ONLY network
+    ADD CONSTRAINT network_measurement_pkey PRIMARY KEY (measurementid);
+
+
+--
+--
+
+ALTER TABLE ONLY ping
+    ADD CONSTRAINT ping_pkey PRIMARY KEY (pingid);
+
+
+--
+--
+
+ALTER TABLE ONLY ping_servers
+    ADD CONSTRAINT ping_servers_pkey PRIMARY KEY (ipaddress);
+
+
+--
+--
+
+ALTER TABLE ONLY screen
+    ADD CONSTRAINT screen_pkey PRIMARY KEY (screenid);
+
+
+--
+--
+
+ALTER TABLE ONLY sim
+    ADD CONSTRAINT sim_pkey PRIMARY KEY (serialnumber);
+
+
+--
+--
+
+ALTER TABLE ONLY south_migrationhistory
+    ADD CONSTRAINT south_migrationhistory_pkey PRIMARY KEY (id);
+
+
+--
+--
+
+ALTER TABLE ONLY state
+    ADD CONSTRAINT state_measurement_pkey PRIMARY KEY (measurementid);
+
+
+--
+--
+
+ALTER TABLE ONLY throughput
+    ADD CONSTRAINT throughput_measurement_pkey PRIMARY KEY (measurementid);
+
+
+--
+--
+
+ALTER TABLE ONLY traceroute
+    ADD CONSTRAINT traceroute_pkey PRIMARY KEY (tracerouteid);
+
+
+--
+--
+
+ALTER TABLE ONLY usage
+    ADD CONSTRAINT usage_measurement_pkey PRIMARY KEY (measurementid);
+
+
+--
+--
+
+ALTER TABLE ONLY "values"
+    ADD CONSTRAINT values_pkey PRIMARY KEY (valueid);
+
+
+--
+--
+
+ALTER TABLE ONLY wifi_hotspot
+    ADD CONSTRAINT wifi_hotspot_pkey PRIMARY KEY (macaddress);
+
+
+--
+--
+
+ALTER TABLE ONLY wifi
+    ADD CONSTRAINT wifi_measurement_pkey PRIMARY KEY (measurementid);
+
+
+--
+--
+
+ALTER TABLE ONLY wifi_neighbor
+    ADD CONSTRAINT wifi_neighbor_pkey PRIMARY KEY (wifi_neighbor_id);
+
+
+--
+--
+
+CREATE INDEX auth_group_permissions_group_id ON auth_group_permissions USING btree (group_id);
+
+
+--
+--
+
+CREATE INDEX auth_group_permissions_permission_id ON auth_group_permissions USING btree (permission_id);
+
+
+--
+--
+
+CREATE INDEX auth_message_user_id ON auth_message USING btree (user_id);
+
+
+--
+--
+
+CREATE INDEX auth_permission_content_type_id ON auth_permission USING btree (content_type_id);
+
+
+--
+--
+
+CREATE INDEX auth_user_groups_group_id ON auth_user_groups USING btree (group_id);
+
+
+--
+--
+
+CREATE INDEX auth_user_groups_user_id ON auth_user_groups USING btree (user_id);
+
+
+--
+--
+
+CREATE INDEX auth_user_user_permissions_permission_id ON auth_user_user_permissions USING btree (permission_id);
+
+
+--
+--
+
+CREATE INDEX auth_user_user_permissions_user_id ON auth_user_user_permissions USING btree (user_id);
+
+
+--
+--
+
+CREATE INDEX django_admin_log_content_type_id ON django_admin_log USING btree (content_type_id);
+
+
+--
+--
+
+CREATE INDEX django_admin_log_user_id ON django_admin_log USING btree (user_id);
+
+
+--
+--
+
+CREATE INDEX django_session_expire_date ON django_session USING btree (expire_date);
+
+
+--
+--
+
+CREATE INDEX ipdv_measurementid ON ipdv USING btree (measurementid);
+
+
+--
+--
+
+CREATE INDEX loss_measurementid ON loss USING btree (measurementid);
+
+
+--
+--
+
+ALTER TABLE ONLY application_use
+    ADD CONSTRAINT application_use_measurementid_fkey FOREIGN KEY (measurementid) REFERENCES measurement(measurementid);
+
+
+--
+--
+
+ALTER TABLE ONLY auth_group_permissions
+    ADD CONSTRAINT auth_group_permissions_permission_id_fkey FOREIGN KEY (permission_id) REFERENCES auth_permission(id) DEFERRABLE INITIALLY DEFERRED;
+
+
+--
+--
+
+ALTER TABLE ONLY auth_message
+    ADD CONSTRAINT auth_message_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth_user(id) DEFERRABLE INITIALLY DEFERRED;
+
+
+--
+--
+
+ALTER TABLE ONLY auth_user_groups
+    ADD CONSTRAINT auth_user_groups_group_id_fkey FOREIGN KEY (group_id) REFERENCES auth_group(id) DEFERRABLE INITIALLY DEFERRED;
+
+
+--
+--
+
+ALTER TABLE ONLY auth_user_user_permissions
+    ADD CONSTRAINT auth_user_user_permissions_permission_id_fkey FOREIGN KEY (permission_id) REFERENCES auth_permission(id) DEFERRABLE INITIALLY DEFERRED;
+
+
+--
+--
+
+ALTER TABLE ONLY django_admin_log
+    ADD CONSTRAINT content_type_id_refs_id_288599e6 FOREIGN KEY (content_type_id) REFERENCES django_content_type(id) DEFERRABLE INITIALLY DEFERRED;
+
+
+--
+--
+
+ALTER TABLE ONLY auth_permission
+    ADD CONSTRAINT content_type_id_refs_id_728de91f FOREIGN KEY (content_type_id) REFERENCES django_content_type(id) DEFERRABLE INITIALLY DEFERRED;
+
+
+--
+--
+
+ALTER TABLE ONLY device
+    ADD CONSTRAINT device_serialnumber_fkey FOREIGN KEY (serialnumber) REFERENCES sim(serialnumber);
+
+
+--
+--
+
+ALTER TABLE ONLY django_admin_log
+    ADD CONSTRAINT django_admin_log_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth_user(id) DEFERRABLE INITIALLY DEFERRED;
+
+
+--
+--
+
+ALTER TABLE ONLY auth_group_permissions
+    ADD CONSTRAINT group_id_refs_id_3cea63fe FOREIGN KEY (group_id) REFERENCES auth_group(id) DEFERRABLE INITIALLY DEFERRED;
+
+
+--
+--
+
+ALTER TABLE ONLY hop
+    ADD CONSTRAINT hop_tracerouteid_fkey FOREIGN KEY (tracerouteid) REFERENCES traceroute(tracerouteid);
+
+
+--
+--
+
+ALTER TABLE ONLY ipdv
+    ADD CONSTRAINT ipdv_measurementid_fkey FOREIGN KEY (measurementid) REFERENCES measurement(measurementid) DEFERRABLE INITIALLY DEFERRED;
+
+
+--
+--
+
+ALTER TABLE ONLY lastmile
+    ADD CONSTRAINT lastmile_measurementid_fkey FOREIGN KEY (measurementid) REFERENCES measurement(measurementid);
+
+
+--
+--
+
+ALTER TABLE ONLY loss
+    ADD CONSTRAINT loss_measurementid_fkey FOREIGN KEY (measurementid) REFERENCES measurement(measurementid) DEFERRABLE INITIALLY DEFERRED;
+
+
+--
+--
+
+ALTER TABLE ONLY measurement
+    ADD CONSTRAINT measurement_deviceid_fkey FOREIGN KEY (deviceid) REFERENCES device(deviceid);
+
+
+--
+--
+
+ALTER TABLE ONLY ping
+    ADD CONSTRAINT ping_measurementid_fkey FOREIGN KEY (measurementid) REFERENCES measurement(measurementid);
+
+
+--
+--
+
+ALTER TABLE ONLY throughput
+    ADD CONSTRAINT throughput_downlinkid_fkey FOREIGN KEY (downlinkid) REFERENCES link(linkid);
+
+
+--
+--
+
+ALTER TABLE ONLY throughput
+    ADD CONSTRAINT throughput_uplinkid_fkey FOREIGN KEY (uplinkid) REFERENCES link(linkid);
+
+
+--
+--
+
+ALTER TABLE ONLY traceroute
+    ADD CONSTRAINT traceroute_measurementid_fkey FOREIGN KEY (measurementid) REFERENCES measurement(measurementid);
+
+
+--
+--
+
+ALTER TABLE ONLY auth_user_groups
+    ADD CONSTRAINT user_id_refs_id_831107f1 FOREIGN KEY (user_id) REFERENCES auth_user(id) DEFERRABLE INITIALLY DEFERRED;
+
+
+--
+--
+
+ALTER TABLE ONLY auth_user_user_permissions
+    ADD CONSTRAINT user_id_refs_id_f2045483 FOREIGN KEY (user_id) REFERENCES auth_user(id) DEFERRABLE INITIALLY DEFERRED;
+
+
+--
+--
+
+ALTER TABLE ONLY warmup_ping
+    ADD CONSTRAINT warmup_measurementid_fkey FOREIGN KEY (measurementid) REFERENCES measurement(measurementid);
+
+
+--
+--
+
+ALTER TABLE ONLY wifi
+    ADD CONSTRAINT wifi_macaddress_fkey FOREIGN KEY (connection) REFERENCES wifi_hotspot(macaddress);
+
+
+--
+--
+
+ALTER TABLE ONLY wifi_neighbor
+    ADD CONSTRAINT wifi_neighbor_macaddress_fkey FOREIGN KEY (macaddress) REFERENCES wifi_hotspot(macaddress);
+
+
+--
+--
+
+ALTER TABLE ONLY wifi_neighbor
+    ADD CONSTRAINT wifi_neighbor_measurementid_fkey FOREIGN KEY (measurementid) REFERENCES measurement(measurementid);
+
+
+--
+-- Name: public; Type: ACL; Schema: -; Owner: postgres
+--
+
+REVOKE ALL ON SCHEMA public FROM PUBLIC;
+REVOKE ALL ON SCHEMA public FROM postgres;
+GRANT ALL ON SCHEMA public TO postgres;
+GRANT ALL ON SCHEMA public TO PUBLIC;
+
+
+--
+--
+
+REVOKE ALL ON TABLE application FROM PUBLIC;
+GRANT SELECT,INSERT,UPDATE ON TABLE application TO mstadmin;
+
+
+--
+--
+
+REVOKE ALL ON TABLE measurement FROM PUBLIC;
+GRANT SELECT,INSERT,UPDATE ON TABLE measurement TO mstadmin;
+
+
+--
+--
+
+REVOKE ALL ON SEQUENCE measurement_seq FROM PUBLIC;
+GRANT SELECT,UPDATE ON SEQUENCE measurement_seq TO mstadmin;
+
+
+--
+--
+
+REVOKE ALL ON TABLE application_use FROM PUBLIC;
+GRANT SELECT,INSERT,UPDATE ON TABLE application_use TO mstadmin;
+
+
+--
+--
+
+REVOKE ALL ON SEQUENCE application_use_seq FROM PUBLIC;
+GRANT SELECT,UPDATE ON SEQUENCE application_use_seq TO mstadmin;
+
+
+--
+--
+
+REVOKE ALL ON TABLE auth_group FROM PUBLIC;
+GRANT SELECT,INSERT,UPDATE ON TABLE auth_group TO mstadmin;
+
+
+--
+--
+
+REVOKE ALL ON SEQUENCE auth_group_id_seq FROM PUBLIC;
+GRANT SELECT,UPDATE ON SEQUENCE auth_group_id_seq TO mstadmin;
+
+
+--
+--
+
+REVOKE ALL ON TABLE auth_group_permissions FROM PUBLIC;
+GRANT SELECT,INSERT,UPDATE ON TABLE auth_group_permissions TO mstadmin;
+
+
+--
+--
+
+REVOKE ALL ON SEQUENCE auth_group_permissions_id_seq FROM PUBLIC;
+GRANT SELECT,UPDATE ON SEQUENCE auth_group_permissions_id_seq TO mstadmin;
+
+
+--
+--
+
+REVOKE ALL ON TABLE auth_message FROM PUBLIC;
+GRANT SELECT,INSERT,UPDATE ON TABLE auth_message TO mstadmin;
+
+
+--
+--
+
+REVOKE ALL ON SEQUENCE auth_message_id_seq FROM PUBLIC;
+GRANT SELECT,UPDATE ON SEQUENCE auth_message_id_seq TO mstadmin;
+
+
+--
+--
+
+REVOKE ALL ON TABLE auth_permission FROM PUBLIC;
+GRANT SELECT,INSERT,UPDATE ON TABLE auth_permission TO mstadmin;
+
+
+--
+--
+
+REVOKE ALL ON SEQUENCE auth_permission_id_seq FROM PUBLIC;
+GRANT SELECT,UPDATE ON SEQUENCE auth_permission_id_seq TO mstadmin;
+
+
+--
+--
+
+REVOKE ALL ON TABLE auth_user FROM PUBLIC;
+GRANT SELECT,INSERT,UPDATE ON TABLE auth_user TO mstadmin;
+
+
+--
+--
+
+REVOKE ALL ON TABLE auth_user_groups FROM PUBLIC;
+GRANT SELECT,INSERT,UPDATE ON TABLE auth_user_groups TO mstadmin;
+
+
+--
+--
+
+REVOKE ALL ON SEQUENCE auth_user_groups_id_seq FROM PUBLIC;
+GRANT SELECT,UPDATE ON SEQUENCE auth_user_groups_id_seq TO mstadmin;
+
+
+--
+--
+
+REVOKE ALL ON SEQUENCE auth_user_id_seq FROM PUBLIC;
+GRANT SELECT,UPDATE ON SEQUENCE auth_user_id_seq TO mstadmin;
+
+
+--
+--
+
+REVOKE ALL ON TABLE auth_user_user_permissions FROM PUBLIC;
+GRANT SELECT,INSERT,UPDATE ON TABLE auth_user_user_permissions TO mstadmin;
+
+
+--
+--
+
+REVOKE ALL ON SEQUENCE auth_user_user_permissions_id_seq FROM PUBLIC;
+GRANT SELECT,UPDATE ON SEQUENCE auth_user_user_permissions_id_seq TO mstadmin;
+
+
+--
+--
+
+REVOKE ALL ON TABLE battery FROM PUBLIC;
+GRANT SELECT,INSERT,UPDATE ON TABLE battery TO mstadmin;
+
+
+--
+--
+
+REVOKE ALL ON TABLE calculate_log FROM PUBLIC;
+GRANT SELECT,INSERT,UPDATE ON TABLE calculate_log TO mstadmin;
+
+
+--
+--
+
+REVOKE ALL ON TABLE cell FROM PUBLIC;
+GRANT SELECT,INSERT,UPDATE ON TABLE cell TO mstadmin;
+
+
+--
+--
+
+REVOKE ALL ON TABLE client_log FROM PUBLIC;
+GRANT SELECT,INSERT,UPDATE ON TABLE client_log TO mstadmin;
+
+
+--
+--
+
+REVOKE ALL ON TABLE device FROM PUBLIC;
+GRANT SELECT,INSERT,UPDATE ON TABLE device TO mstadmin;
+
+
+--
+--
+
+REVOKE ALL ON TABLE django_admin_log FROM PUBLIC;
+GRANT SELECT,INSERT,UPDATE ON TABLE django_admin_log TO mstadmin;
+
+
+--
+--
+
+REVOKE ALL ON SEQUENCE django_admin_log_id_seq FROM PUBLIC;
+GRANT SELECT,UPDATE ON SEQUENCE django_admin_log_id_seq TO mstadmin;
+
+
+--
+--
+
+REVOKE ALL ON TABLE django_content_type FROM PUBLIC;
+GRANT SELECT,INSERT,UPDATE ON TABLE django_content_type TO mstadmin;
+
+
+--
+--
+
+REVOKE ALL ON SEQUENCE django_content_type_id_seq FROM PUBLIC;
+GRANT SELECT,UPDATE ON SEQUENCE django_content_type_id_seq TO mstadmin;
+
+
+--
+--
+
+REVOKE ALL ON TABLE django_session FROM PUBLIC;
+GRANT SELECT,INSERT,UPDATE ON TABLE django_session TO mstadmin;
+
+
+--
+--
+
+REVOKE ALL ON TABLE django_site FROM PUBLIC;
+GRANT SELECT,INSERT,UPDATE ON TABLE django_site TO mstadmin;
+
+
+--
+--
+
+REVOKE ALL ON SEQUENCE django_site_id_seq FROM PUBLIC;
+GRANT SELECT,UPDATE ON SEQUENCE django_site_id_seq TO mstadmin;
+
+
+--
+--
+
+REVOKE ALL ON TABLE error_log FROM PUBLIC;
+GRANT SELECT,INSERT,UPDATE ON TABLE error_log TO mstadmin;
+
+
+--
+--
+
+REVOKE ALL ON TABLE gps FROM PUBLIC;
+GRANT SELECT,INSERT,UPDATE ON TABLE gps TO mstadmin;
+
+
+--
+--
+
+REVOKE ALL ON TABLE traceroute FROM PUBLIC;
+GRANT SELECT,INSERT,UPDATE ON TABLE traceroute TO mstadmin;
+
+
+--
+--
+
+REVOKE ALL ON SEQUENCE traceroute_seq FROM PUBLIC;
+GRANT SELECT,UPDATE ON SEQUENCE traceroute_seq TO mstadmin;
+
+
+--
+--
+
+REVOKE ALL ON TABLE hop FROM PUBLIC;
+GRANT SELECT,INSERT,UPDATE ON TABLE hop TO mstadmin;
+
+
+--
+--
+
+REVOKE ALL ON SEQUENCE hop_seq FROM PUBLIC;
+GRANT SELECT,UPDATE ON SEQUENCE hop_seq TO mstadmin;
+
+
+--
+--
+
+REVOKE ALL ON TABLE ipdv FROM PUBLIC;
+GRANT SELECT,INSERT,UPDATE ON TABLE ipdv TO mstadmin;
+
+
+--
+--
+
+REVOKE ALL ON SEQUENCE ipdv_ipdvid_seq FROM PUBLIC;
+GRANT SELECT,UPDATE ON SEQUENCE ipdv_ipdvid_seq TO mstadmin;
+
+
+--
+--
+
+REVOKE ALL ON TABLE kill_list FROM PUBLIC;
+GRANT SELECT,INSERT,UPDATE ON TABLE kill_list TO mstadmin;
+
+
+--
+--
+
+REVOKE ALL ON SEQUENCE lastmile_seq FROM PUBLIC;
+GRANT SELECT,UPDATE ON SEQUENCE lastmile_seq TO mstadmin;
+
+
+--
+--
+
+REVOKE ALL ON TABLE lastmile FROM PUBLIC;
+GRANT SELECT,INSERT,UPDATE ON TABLE lastmile TO mstadmin;
+
+
+--
+--
+
+REVOKE ALL ON TABLE link FROM PUBLIC;
+GRANT SELECT,INSERT,UPDATE ON TABLE link TO mstadmin;
+
+
+--
+--
+
+REVOKE ALL ON SEQUENCE link_seq FROM PUBLIC;
+GRANT SELECT,UPDATE ON SEQUENCE link_seq TO mstadmin;
+
+
+--
+--
+
+REVOKE ALL ON TABLE loss FROM PUBLIC;
+GRANT SELECT,INSERT,UPDATE ON TABLE loss TO mstadmin;
+
+
+--
+--
+
+REVOKE ALL ON SEQUENCE loss_lossid_seq FROM PUBLIC;
+GRANT SELECT,UPDATE ON SEQUENCE loss_lossid_seq TO mstadmin;
+
+
+--
+--
+
+REVOKE ALL ON TABLE measurement_oct14dec14 FROM PUBLIC;
+GRANT SELECT,INSERT,UPDATE ON TABLE measurement_oct14dec14 TO mstadmin;
+
+
+--
+--
+
+REVOKE ALL ON TABLE network FROM PUBLIC;
+GRANT SELECT,INSERT,UPDATE ON TABLE network TO mstadmin;
+
+
+--
+--
+
+REVOKE ALL ON SEQUENCE ping_seq FROM PUBLIC;
+GRANT SELECT,UPDATE ON SEQUENCE ping_seq TO mstadmin;
+
+
+--
+--
+
+REVOKE ALL ON TABLE ping FROM PUBLIC;
+GRANT SELECT,INSERT,UPDATE ON TABLE ping TO mstadmin;
+
+
+--
+--
+
+REVOKE ALL ON TABLE ping_servers FROM PUBLIC;
+GRANT SELECT,INSERT,UPDATE ON TABLE ping_servers TO mstadmin;
+
+
+--
+--
+
+REVOKE ALL ON TABLE screen FROM PUBLIC;
+GRANT SELECT,INSERT,UPDATE ON TABLE screen TO mstadmin;
+
+
+--
+--
+
+REVOKE ALL ON SEQUENCE screen_seq FROM PUBLIC;
+GRANT SELECT,UPDATE ON SEQUENCE screen_seq TO mstadmin;
+
+
+--
+--
+
+REVOKE ALL ON TABLE sim FROM PUBLIC;
+GRANT SELECT,INSERT,UPDATE ON TABLE sim TO mstadmin;
+
+
+--
+--
+
+REVOKE ALL ON TABLE south_migrationhistory FROM PUBLIC;
+GRANT SELECT,INSERT,UPDATE ON TABLE south_migrationhistory TO mstadmin;
+
+
+--
+--
+
+REVOKE ALL ON SEQUENCE south_migrationhistory_id_seq FROM PUBLIC;
+GRANT SELECT,UPDATE ON SEQUENCE south_migrationhistory_id_seq TO mstadmin;
+
+
+--
+--
+
+REVOKE ALL ON TABLE state FROM PUBLIC;
+GRANT SELECT,INSERT,UPDATE ON TABLE state TO mstadmin;
+
+
+--
+--
+
+REVOKE ALL ON TABLE throughput FROM PUBLIC;
+GRANT SELECT,INSERT,UPDATE ON TABLE throughput TO mstadmin;
+
+
+--
+--
+
+REVOKE ALL ON TABLE usage FROM PUBLIC;
+GRANT SELECT,INSERT,UPDATE ON TABLE usage TO mstadmin;
+
+
+--
+--
+
+REVOKE ALL ON TABLE "values" FROM PUBLIC;
+GRANT SELECT,INSERT,UPDATE ON TABLE "values" TO mstadmin;
+
+
+--
+--
+
+REVOKE ALL ON SEQUENCE values_seq FROM PUBLIC;
+GRANT SELECT,UPDATE ON SEQUENCE values_seq TO mstadmin;
+
+
+--
+--
+
+REVOKE ALL ON TABLE warmup_experiment FROM PUBLIC;
+GRANT SELECT,INSERT,UPDATE ON TABLE warmup_experiment TO mstadmin;
+
+
+--
+--
+
+REVOKE ALL ON TABLE warmup_ping FROM PUBLIC;
+GRANT SELECT,INSERT,UPDATE ON TABLE warmup_ping TO mstadmin;
+
+
+--
+--
+
+REVOKE ALL ON SEQUENCE warmup_seq FROM PUBLIC;
+GRANT SELECT,UPDATE ON SEQUENCE warmup_seq TO mstadmin;
+
+
+--
+--
+
+REVOKE ALL ON TABLE wifi FROM PUBLIC;
+GRANT SELECT,INSERT,UPDATE ON TABLE wifi TO mstadmin;
+
+
+--
+--
+
+REVOKE ALL ON TABLE wifi_hotspot FROM PUBLIC;
+GRANT SELECT,INSERT,UPDATE ON TABLE wifi_hotspot TO mstadmin;
+
+
+--
+--
+
+REVOKE ALL ON TABLE wifi_neighbor FROM PUBLIC;
+GRANT SELECT,INSERT,UPDATE ON TABLE wifi_neighbor TO mstadmin;
+
+
+--
+--
+
+REVOKE ALL ON SEQUENCE wifi_neighbor_seq FROM PUBLIC;
+GRANT SELECT,UPDATE ON SEQUENCE wifi_neighbor_seq TO mstadmin;
+
+
+--
+--
+
+REVOKE ALL ON TABLE za FROM PUBLIC;
+GRANT SELECT,INSERT,UPDATE ON TABLE za TO mstadmin;
+
+
+--
+--
+
+REVOKE ALL ON TABLE za1 FROM PUBLIC;
+
+
+--
+-- PostgreSQL database dump complete
+--
+
