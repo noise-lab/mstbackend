@@ -1,0 +1,6 @@
+[
+{"title": "Zero-rating Impact on Mobile Usage in South Africa and Kenya", "link": "http://goo.gl/forms/l5ycwHVkAi", "desc": "The following questionnaire investigates the reach of zero-rated services, in addition to possible relationships between zero-rating and mobile data usage in South Africa and Kenya. Please answer all the questions in order to complete installation and open the MySpeedTest application."},
+{"title": "Internet users' perception on censorship in South Africa", "link": "http://goo.gl/forms/pKopK5l4YU", "desc": "The following questionnaire investigates internet users' perception on censorship in South Africa. Please answer all the questions. You can win a Smartphone! Please note that when we refer to internet we include also social media platforms and apps such as Facebook, Twitter, and internet messaging such as WhatsApp and BBM."},
+{"title": "MySpeedTest Usability Survey", "required":"us","link": "http://goo.gl/forms/Yk2avCDEy4", "desc": "How can MySpeedTest application help you to understand your internet connectivity and what features would you like the see implemented in our app?"}
+]
+

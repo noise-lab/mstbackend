@@ -1,0 +1,202 @@
+from datetime import datetime, timedelta
+from models import *
+import error_message_helper as emh
+import traceback
+
+def sim(dev):
+    s = Sim()
+    try:
+        try:
+            s.serialnumber = dev["serialNumber"]
+        except:
+            pass
+        try:
+            s.state = dev["state"]
+        except:
+            pass
+        try:
+            s.operatorcode = dev["operatorCode"]
+        except:
+            pass
+        try:
+            s.operatorname = dev["operatorName"]
+        except:
+            pass
+        try:
+            s.networkcountry = dev["networkCountry"]
+        except:
+            pass                                                                                                                                                                
+                                                                                                                                                                                
+        s.save()                                                                                                                                                                
+    except Exception as inst:                                                                                                                                                   
+        pass                                                                                                                                                                    
+    return s
+
+def device(dev, m_deviceid, m_sim):
+    count = 0
+    message = []
+    d = Device()
+    try:
+        d = Device.objects.filter(deviceid=m_deviceid)[0]
+    except Exception as inst:
+        d = Device()
+        try:
+            d.deviceid = m_deviceid
+        except Exception as inst:
+            message.append(emh.insert_entry_fail("device", inst))
+
+    try:
+
+        try:
+            d.phonenumber = dev['phoneNumber']
+        except Exception as inst:
+            message.append(emh.insert_entry_fail("device", inst))
+        try:
+            d.phonetype = dev['phoneType']
+        except Exception as inst:
+            message.append(emh.insert_entry_fail("device", inst))
+        try:
+            d.softwareversion = dev['softwareVersion']
+        except Exception as inst:
+            message.append(emh.insert_entry_fail("device", inst))
+        try:
+            d.phonemodel = dev['phoneModel']
+        except Exception as inst:
+            message.append(emh.insert_entry_fail("device", inst))
+        try:
+            d.androidversion = dev['androidVersion']
+        except Exception as inst:
+            message.append(emh.insert_entry_fail("device", inst))
+        try:
+            d.phonebrand = dev['phoneBrand']
+        except Exception as inst:
+            message.append(emh.insert_entry_fail("device", inst))
+        try:
+            d.devicedesign = dev['deviceDesign']
+        except Exception as inst:
+           message.append(emh.insert_entry_fail("device", inst))                                                                                                               
+        try:                                                                                                                                                                    
+            d.manufacturer = dev['manufacturer']                                                                                                                                
+        except Exception as inst:                                                                                                                                               
+            message.append(emh.insert_entry_fail("device", inst))                                                                                                               
+        try:                                                                                                                                                                    
+            d.productname = dev['productName']                                                                                                                                  
+        except Exception as inst:                                                                                                                                               
+            message.append(emh.insert_entry_fail("device", inst))                                                                                                               
+        try:                                                                                                                                                                    
+            d.radioversion = dev['radioVersion']                                                                                                                                
+        except Exception as inst:                                                                                                                                               
+            message.append(emh.insert_entry_fail("device", inst))                                                                                                               
+        try:                                                                                                                                                                    
+            d.boardname = dev['boardName']                                                                                                                                      
+        except Exception as inst:                                                                                                                                               
+            message.append(emh.insert_entry_fail("device", inst))                                                                                                               
+        try:                                                                                                                                                                    
+            d.datacap = dev['datacap']                                                                                                                                          
+        except Exception as inst:                                                                                                                                               
+            message.append(emh.insert_entry_fail("device", inst))                                                                                                               
+        try:                                                                                                                                                                    
+            d.networkcountry = dev["networkCountry"]                                                                                                                            
+        except Exception as inst:                                                                                                                                               
+            message.append(emh.insert_entry_fail("device", inst))                                                                                                               
+        try:                                                                                                                                                                    
+            d.networkname = dev["networkName"]                                                                                                                                  
+        except Exception as inst:                                                                                                                                               
+            message.append(emh.insert_entry_fail("device", inst))                                                                                                               
+        try:                                                                                                                                                                    
+            d.emailaddress = dev["emailAddress"]                                                                                                                                
+        except Exception as inst:                                                                                                                                               
+            message.append(emh.insert_entry_fail("device", inst))                                                                                                               
+        try:                                                                                                                                                                    
+            d.applicationversion = dev["applicationVersion"]                                                                                                                    
+        except Exception as inst:                                                                                                                                               
+            message.append(emh.insert_entry_fail("device", inst))                                                                                                               
+        try:                                                                                                                                                                    
+            s = sim(m_sim)                                                                                                                                                      
+            d.serialnumber = s.serialnumber                                                                                                                                     
+        except Exception as inst:                                                                                                                                               
+            message.append(emh.insert_entry_fail("sim", inst))  
+                                                                                                                                                                                
+        d.save()                                                                                                                                                                
+    except Exception as inst:                                                                                                                                                   
+        message.append(emh.insert_entry_fail("device", inst))                                                                                                                   
+    return d 
+
+
+def link(dev):
+    l = Link()
+    try: 
+        l.count = dev['count'] 
+        l.message_size = dev['message_size'] 
+        l.duration = dev['time'] 
+        l.speed = dev['speedInBits'] 
+        l.port = dev['dstPort'] 
+        l.ip_address = dev['dstIp'] 
+        l.save() 
+    except:
+        print traceback.format_exc()         
+        pass
+    return l
+
+
+def network(dev, m):
+
+    n = Network()
+    try:
+        n.measurementid = m.measurementid
+    except:
+        pass
+    try:
+        n.networktype = dev["networkType"]
+    except:
+        n.networktype = "null"
+    try:
+        n.connectiontype = dev["connectionType"]
+    except:
+        n.connectiontype = "null"
+
+    try:
+        n.cellid = parse(dev['cellId'])
+    except:
+        n.cellid = "null"
+
+    try:
+        n.celllac = parse(dev["cellLac"])
+    except:
+        n.celllac = "null"
+
+    try:
+        n.celltype = parse(dev["cellType"])
+    except:
+        n.celltype = "null"
+    try:
+        n.longitude = parseFloat(dev["basestationLong"], -99)
+    except:
+        n.longitude = -99
+    try:
+        n.latitude = parseFloat(dev["basestationLat"], -99)
+    except:
+        n.latitude = -99                                                                                                                                                        
+    try:                                                                                                                                                                        
+        n.networkid = parseInt(dev["networkid"], -1)                                                                                                                            
+    except:                                                                                                                                                                     
+        n.networkid = -1                                                                                                                                                        
+    try:                                                                                                                                                                        
+        n.systemid = parseInt(dev["systemid"], -1)                                                                                                                              
+    except:                                                                                                                                                                     
+        n.systemid = -1                                                                                                                                                         
+    try:                                                                                                                                                                        
+        n.datastate = dev["dataState"]                                                                                                                                          
+    except:                                                                                                                                                                     
+        n.datastate = "null"                                                                                                                                                    
+    try:                                                                                                                                                                        
+        n.dataactivity = dev["dataActivity"]                                                                                                                                    
+    except:                                                                                                                                                                     
+        n.dataactivity = "null"                                                                                                                                                 
+    try:                                                                                                                                                                        
+        n.signalstrength = dev["signalStrength"]                                                                                                                                
+    except:                                                                                                                                                                     
+        n.signalstrength = "-1"                                                                                                                                                 
+    n.save()                                                                                                                                                                    
+                                                                                                                                                                                
+    return n        

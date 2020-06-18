@@ -1,0 +1,31 @@
+# Install with: `pip install -r requirements.txt`
+
+# Infrastructure
+Django >= 1.8.4, < 1.9
+Pillow == 2.9.0
+#for MySQL: MySQL-python == 1.2.5
+#for PostgreSQL: psycopg2 == 2.6.1
+psycopg2 == 2.6.1
+python-memcached == 1.57
+raven == 5.6.0
+
+# CMS libraries
+django-fluent-dashboard >= 0.5.3
+
+# Support libs
+django-axes >= 1.4.0
+django-admin-tools >= 0.5.2
+django-crispy-forms >= 1.5.1, <1.6.0
+#dashboardmods >= 0.2.2
+django_compressor == 1.5
+django-google-tools >= 1.0.0
+-e git+https://github.com/smacker/django-filebrowser-no-grappelli.git@25613ff879325f2da8e465c028b9657ae6dd79cf#egg=django-filebrowser-no-grappelli
+-e git+https://github.com/rizumu/django-ping.git@b9e228fe1f338d87b323383509a975fd9df22ef1#egg=django_ping-0.3b1
+pytz >= 2015.4
+sorl-thumbnail == 12.3
+South == 1.0.2
+
+# Debugging
+django-debugtools >= 1.4
+ipython >= 3.2.1
+ptpython >= 0.21

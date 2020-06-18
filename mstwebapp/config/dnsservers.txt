@@ -1,0 +1,9 @@
+8.8.8.8|www.cnn.com
+8.8.8.8|www.nonexistentdomain.xyz
+8.8.8.8|facebook.com
+8.8.8.8|netflix.com
+8.8.8.8|www.bbc.co.uk
+8.8.8.8|sina.com.cn
+8.8.8.8|www.youm7.com
+8.8.8.8|farsnews.com
+8.8.8.8|www.globo.com

@@ -1,0 +1,20 @@
+143.215.131.173|Atlanta, GA|default
+128.48.110.150|Oakland, CA|default
+www.facebook.com|Facebook|default
+www.google.com|Google|default
+www.youtube.com|YouTube|default
+www.yahoo.com|Yahoo!|default
+www.twitter.com|Twitter|default
+www.wikipedia.com|Wikipedia|default
+www.blogspot.com|Blogspot.com|default
+www.bing.com|Bing|default
+4.71.254.153|Atlanta, GA|za
+38.98.51.12|Los Angeles, CA|za
+213.244.128.169|Amsterdam|za
+196.24.45.146|Johannesburg, SA|za
+197.136.0.108|Nairobi, KE|za
+203.178.130.210|Tokyo, JP|za
+175.45.79.44|Sydney, AU|za
+180.149.52.20|Delhi, IN|za
+143.54.2.20|Rio, BR|za
+8.8.8.8|Google DNS|za
